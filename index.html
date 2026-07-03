@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>何歌うDB</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1 id="homeLink">何歌うDB</h1>
+  <button id="memoButton" class="memo-button">📌 今日のカラオケメモ</button>
+  <p id="count" class="count"></p>
+</header>
+
+<nav class="view-tabs">
+  <button id="tabSongs" class="view-tab active">曲一覧</button>
+  <button id="tabArtists" class="view-tab">アーティスト一覧</button>
+</nav>
+
+<div class="search-bar">
+  <input id="search" type="search" placeholder="曲名・アーティスト名で検索" autocomplete="off">
+  <button id="sortButton" class="sort-button">アーティスト順</button>
+</div>
+
+<div id="motivationFilters" class="tag-filters motivation-filters"></div>
+<div id="tagFilters" class="tag-filters"></div>
+<div id="purposeFilters" class="tag-filters"></div>
+
+<main id="songList" class="song-list"></main>
+<main id="artistList" class="artist-list" hidden></main>
+
+<div id="memoOverlay" class="overlay" hidden>
+  <div class="memo-panel">
+    <div class="memo-panel-header">
+      <span>📌 今日のカラオケメモ</span>
+      <button id="memoClose" class="memo-close" aria-label="閉じる">✕</button>
+    </div>
+    <pre id="memoText" class="memo-text"></pre>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
