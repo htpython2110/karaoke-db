@@ -5,8 +5,6 @@ const TAG_ORDER = [
   "エクストリーム", "歪み", "0セリフ有り",
 ];
 
-const MOTIVATION_ORDER = ["1モチベ高", "2今日の山場"];
-
 const PURPOSE_ORDER = [
   "00声出し", "0セリフ練", "1極める", "2歪み練習",
   "ハイトーン", "ファルセ練習", "低音練習", "テンポチェンジ",
@@ -15,17 +13,14 @@ const PURPOSE_ORDER = [
 
 const UNKNOWN_ARTIST = "アーティスト不明";
 
-const SORT_MODES = [
-  { field: "artist", dir: "asc", label: "アーティスト順" },
-  { field: "updated", dir: "desc", label: "更新日時 新しい順" },
-  { field: "updated", dir: "asc", label: "更新日時 古い順" },
-];
+const MOTIVATION_HIGH = "モチベ高";
+const MASTERED_TAG = "1極める";
 
 const state = {
   songs: [],
   view: "songs", // "songs" | "artists"
   query: "",
-  sortIndex: 0,
+  sort: "updated-desc",
   filters: {
     tags: new Set(),
     motivation: new Set(),
@@ -36,8 +31,11 @@ const state = {
 const els = {
   homeLink: document.getElementById("homeLink"),
   search: document.getElementById("search"),
-  sortButton: document.getElementById("sortButton"),
-  motivationFilters: document.getElementById("motivationFilters"),
+  sortSelect: document.getElementById("sortSelect"),
+  qfMotivation: document.getElementById("qfMotivation"),
+  qfMastered: document.getElementById("qfMastered"),
+  qfGenre: document.getElementById("qfGenre"),
+  genrePanel: document.getElementById("genrePanel"),
   tagFilters: document.getElementById("tagFilters"),
   purposeFilters: document.getElementById("purposeFilters"),
   songList: document.getElementById("songList"),
@@ -58,20 +56,33 @@ const byArtistThenTitle = (a, b) => {
   return a.artist.localeCompare(b.artist, "ja") || a.title.localeCompare(b.title, "ja");
 };
 
-function currentSort() {
-  return SORT_MODES[state.sortIndex];
-}
+const updatedTime = (s) => (s.updatedAt ? Date.parse(s.updatedAt) : 0);
 
 function sortSongs(songs) {
-  const sort = currentSort();
-  if (sort.field === "artist") {
-    return songs.slice().sort(byArtistThenTitle);
+  const arr = songs.slice();
+  switch (state.sort) {
+    case "updated-asc":
+      return arr.sort((a, b) => updatedTime(a) - updatedTime(b));
+    case "artist":
+      return arr.sort(byArtistThenTitle);
+    case "title":
+      return arr.sort((a, b) => a.title.localeCompare(b.title, "ja") || byArtistThenTitle(a, b));
+    case "motivation":
+      return arr.sort((a, b) => {
+        const ma = a.motivation.includes(MOTIVATION_HIGH) ? 1 : 0;
+        const mb = b.motivation.includes(MOTIVATION_HIGH) ? 1 : 0;
+        return mb - ma || updatedTime(b) - updatedTime(a);
+      });
+    case "mastered":
+      return arr.sort((a, b) => {
+        const ma = a.purpose.includes(MASTERED_TAG) ? 1 : 0;
+        const mb = b.purpose.includes(MASTERED_TAG) ? 1 : 0;
+        return mb - ma || updatedTime(b) - updatedTime(a);
+      });
+    case "updated-desc":
+    default:
+      return arr.sort((a, b) => updatedTime(b) - updatedTime(a));
   }
-  return songs.slice().sort((a, b) => {
-    const ta = a.updatedAt ? Date.parse(a.updatedAt) : 0;
-    const tb = b.updatedAt ? Date.parse(b.updatedAt) : 0;
-    return sort.dir === "asc" ? ta - tb : tb - ta;
-  });
 }
 
 Promise.all([
@@ -80,19 +91,19 @@ Promise.all([
 ]).then(([songs, memo]) => {
   state.songs = songs;
   els.memoText.textContent = memo.text || "（メモなし）";
-  els.sortButton.textContent = currentSort().label;
+  els.sortSelect.value = state.sort;
   renderFilters();
   render();
 });
 
 function renderFilters() {
   renderFilterRow(els.tagFilters, "tags", TAG_ORDER);
-  renderFilterRow(els.motivationFilters, "motivation", MOTIVATION_ORDER);
-  renderFilterRow(els.purposeFilters, "purpose", PURPOSE_ORDER);
+  renderFilterRow(els.purposeFilters, "purpose", PURPOSE_ORDER, [MASTERED_TAG]);
 }
 
-function renderFilterRow(container, field, preferredOrder) {
+function renderFilterRow(container, field, preferredOrder, exclude = []) {
   const present = new Set(state.songs.flatMap((s) => s[field]));
+  for (const v of exclude) present.delete(v);
   const ordered = preferredOrder.filter((t) => present.has(t));
   const rest = [...present].filter((t) => !preferredOrder.includes(t)).sort();
   buildChipRow(container, [...ordered, ...rest], field);
@@ -146,11 +157,17 @@ function filteredSongs() {
 }
 
 function render() {
+  updateQuickFilterStates();
   if (state.view === "songs") {
     renderSongs();
   } else {
     renderArtists();
   }
+}
+
+function updateQuickFilterStates() {
+  els.qfMotivation.classList.toggle("active", state.filters.motivation.has(MOTIVATION_HIGH));
+  els.qfMastered.classList.toggle("active", state.filters.purpose.has(MASTERED_TAG));
 }
 
 function renderSongs() {
@@ -196,6 +213,22 @@ function buildSongCard(song) {
     meta.appendChild(keyBadge);
   }
 
+  if (song.motivation.includes(MOTIVATION_HIGH)) {
+    const badge = document.createElement("span");
+    badge.className = "badge motivation-high";
+    badge.textContent = stripTagPrefix(MOTIVATION_HIGH);
+    badge.addEventListener("click", () => jumpToFilter("motivation", MOTIVATION_HIGH));
+    meta.appendChild(badge);
+  }
+
+  if (song.purpose.includes(MASTERED_TAG)) {
+    const badge = document.createElement("span");
+    badge.className = "badge mastered";
+    badge.textContent = stripTagPrefix(MASTERED_TAG);
+    badge.addEventListener("click", () => jumpToFilter("purpose", MASTERED_TAG));
+    meta.appendChild(badge);
+  }
+
   for (const tag of song.tags) {
     const badge = document.createElement("span");
     badge.className = "badge tag-link";
@@ -207,6 +240,7 @@ function buildSongCard(song) {
   }
 
   for (const purpose of song.purpose) {
+    if (purpose === MASTERED_TAG) continue;
     const badge = document.createElement("span");
     badge.className = "badge tag-link";
     badge.textContent = stripTagPrefix(purpose);
@@ -303,10 +337,26 @@ els.search.addEventListener("input", (e) => {
   render();
 });
 
-els.sortButton.addEventListener("click", () => {
-  state.sortIndex = (state.sortIndex + 1) % SORT_MODES.length;
-  els.sortButton.textContent = currentSort().label;
+els.sortSelect.addEventListener("change", (e) => {
+  state.sort = e.target.value;
   render();
+});
+
+els.qfMotivation.addEventListener("click", () => {
+  const set = state.filters.motivation;
+  set.has(MOTIVATION_HIGH) ? set.delete(MOTIVATION_HIGH) : set.add(MOTIVATION_HIGH);
+  render();
+});
+
+els.qfMastered.addEventListener("click", () => {
+  const set = state.filters.purpose;
+  set.has(MASTERED_TAG) ? set.delete(MASTERED_TAG) : set.add(MASTERED_TAG);
+  render();
+});
+
+els.qfGenre.addEventListener("click", () => {
+  els.genrePanel.hidden = !els.genrePanel.hidden;
+  els.qfGenre.classList.toggle("active", !els.genrePanel.hidden);
 });
 
 els.homeLink.addEventListener("click", goHome);
