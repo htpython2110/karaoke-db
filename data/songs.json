@@ -2862,10 +2862,13 @@
       "モチベ高"
     ],
     "purpose": [
-      "1極める"
+      "00声出し",
+      "1極める",
+      "アンニュイ",
+      "声の表情"
     ],
     "openingLyric": null,
-    "updatedAt": "2026-04-27T08:17:00"
+    "updatedAt": "2026-09-18T15:46:00"
   },
   {
     "id": 221,
@@ -12951,5 +12954,94 @@
     "purpose": [],
     "openingLyric": null,
     "updatedAt": "2026-07-30T10:06:00"
+  },
+  {
+    "id": 1042,
+    "title": "Jupiterジュピター木星",
+    "artist": "平原綾香",
+    "key": null,
+    "tags": [],
+    "motivation": [
+      "モチベ高"
+    ],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-09-18T15:21:00"
+  },
+  {
+    "id": 1043,
+    "title": "凜の国",
+    "artist": "林明日香",
+    "key": null,
+    "tags": [
+      "Jバラード",
+      "女"
+    ],
+    "motivation": [
+      "モチベ高"
+    ],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-08-04T18:36:00"
+  },
+  {
+    "id": 1044,
+    "title": "小さきもの",
+    "artist": "林明日香",
+    "key": null,
+    "tags": [
+      "Jバラード",
+      "女"
+    ],
+    "motivation": [
+      "モチベ高"
+    ],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-08-04T18:36:00"
+  },
+  {
+    "id": 1045,
+    "title": "白い恋人達",
+    "artist": "サザンオールスターズ",
+    "key": null,
+    "tags": [],
+    "motivation": [],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-08-28T01:19:00"
+  },
+  {
+    "id": 1046,
+    "title": "初音ミクの消失テンポMAX",
+    "artist": "ボカロ",
+    "key": null,
+    "tags": [],
+    "motivation": [],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-08-28T01:19:00"
+  },
+  {
+    "id": 1047,
+    "title": "君は薔薇より美しい",
+    "artist": "布施明",
+    "key": null,
+    "tags": [],
+    "motivation": [],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-08-28T01:25:00"
+  },
+  {
+    "id": 1048,
+    "title": "名もなき詩",
+    "artist": "ミスターチルドレン",
+    "key": null,
+    "tags": [],
+    "motivation": [],
+    "purpose": [],
+    "openingLyric": null,
+    "updatedAt": "2026-08-28T01:27:00"
   }
 ]
